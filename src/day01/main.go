@@ -1,12 +1,11 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
 	"math"
-	"os"
 	"sort"
 	"strconv"
+	"strings"
 )
 
 type Calorie struct {
@@ -23,21 +22,11 @@ func (c Calorie) sum() float64 {
 	return sum
 }
 
-func read(filename string) []Calorie {
-	readFile, err := os.Open(filename)
-	defer readFile.Close()
-
-	if err != nil {
-		fmt.Println(err)
-	}
-	fileScanner := bufio.NewScanner(readFile)
-	fileScanner.Split(bufio.ScanLines)
-
+func read(file string) []Calorie {
 	var fileLines []float64
 	var calories []Calorie
 
-	for fileScanner.Scan() {
-		line := fileScanner.Text()
+	for _, line := range strings.Split(file, "\n") {
 		if line == "" {
 			calories = append(calories, Calorie{calories: fileLines})
 			fileLines = make([]float64, 0)
@@ -49,6 +38,7 @@ func read(filename string) []Calorie {
 		}
 		fileLines = append(fileLines, num)
 	}
+	// append last section
 	calories = append(calories, Calorie{calories: fileLines})
 
 	return calories
