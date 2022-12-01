@@ -6,6 +6,7 @@ import (
     "fmt"
     "math"
     "os"
+    "sort"
     "strconv"
 )
 
@@ -63,14 +64,21 @@ func day01a(filename string) float64 {
 func day01b(filename string) float64 {
 
     lines := read(filename)
-    var best = 0.0
+    var sumOfCalories []float64
     for _, line := range lines {
         var sum = 0.0
         for _, calorie := range line.calories {
-            sum += float64(calorie)
+            sum += calorie
         }
-        best = math.Max(best, sum)
+        sumOfCalories = append(sumOfCalories, sum)
     }
 
-    return best
+    sort.Float64s(sumOfCalories)
+    sum := 0.0
+
+    for _, num := range sumOfCalories[len(sumOfCalories)-3:] {
+        sum += num
+    }
+
+    return sum
 }
