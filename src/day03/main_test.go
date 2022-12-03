@@ -26,3 +26,11 @@ func TestDay03b(t *testing.T) {
 		t.Fatalf(`actual = %v, expected = %v`, actual, expected)
 	}
 }
+
+func TestDay03c(t *testing.T) {
+	actual := day03b(input)
+	expected := 70
+	if actual != expected {
+		t.Fatalf(`actual = %v, expected = %v`, actual, expected)
+	}
+}

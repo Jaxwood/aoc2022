@@ -2,6 +2,9 @@ package main
 
 import (
 	"strings"
+	"github.com/jaxwood/aoc2022/maps"
+	// "fmt"
+	// "golang.org/x/exp/maps"
 )
 
 func day03a(filename string) int {
@@ -17,12 +20,9 @@ func day03a(filename string) int {
 		scores[rune(i)] = 27 + (i - 65)
 	}
 	for _, line := range lines {
-		chars := map[rune]bool{}
 		start := line[:len(line) / 2]
 		end := line[len(line) / 2:]
-		for _, c := range start {
-			chars[c] = true
-		}
+		chars := toMap(start)
 		for _, c := range end {
 			_, ok := chars[c]
 			if ok {
@@ -32,4 +32,31 @@ func day03a(filename string) int {
 		}
 	}
 	return sum
+}
+
+func day03b(filename string) int {
+	// group by lines of 3
+	lines := strings.Split(filename, "\n")
+	idx := 0
+	lineGroup := []string{}
+	lineGroups := [][]string{}
+	for _, line := range lines {
+		if idx < 3 {
+			lineGroup = append(lineGroup, line)
+			idx += 1
+		} else {
+			lineGroups = append(lineGroups, lineGroup)
+			idx = 0
+			lineGroup = nil
+		}
+	}
+	// append last group
+	lineGroups = append(lineGroups, lineGroup)
+
+	for _, group := range lineGroups {
+		for _, ruckSack := range group {
+			m := toMap(ruckSack)
+		}
+	}
+	return len(filename)
 }
