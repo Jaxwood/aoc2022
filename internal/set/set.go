@@ -4,12 +4,17 @@ type Set struct {
 	Items map[rune]bool
 }
 
-func StrToMap(str string) map[rune]bool {
+func ToSet(str string) Set {
 	result := map[rune]bool{}
 	for _, s := range str {
 		result[s] = true
 	}
-	return result
+	return Set{result}
+}
+
+func (s Set) Get(key rune) bool {
+  _, ok := s.Items[key]
+  return ok
 }
 
 func (s Set) Len() int {
@@ -39,12 +44,4 @@ func (s Set) Difference(other Set) Set {
 		}
 	}
 	return Set{diff}
-}
-
-func keys(candidate map[rune]bool) []rune {
-	var result []rune
-	for k, _ := range candidate {
-		result = append(result, k)
-	}
-	return result
 }

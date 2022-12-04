@@ -35,9 +35,9 @@ func day03a(filename string) int {
 	for _, line := range lines {
 		start := line[:len(line)/2]
 		end := line[len(line)/2:]
-		startChars := set.StrToMap(start)
+		startChars := set.ToSet(start)
 		for _, c := range end {
-			_, ok := startChars[c]
+			ok := startChars.Get(c)
 			if ok {
 				sum += scores[c]
 				break
@@ -54,13 +54,13 @@ func ruckSackGroups(lines []string) [][]set.Set {
 
 	for _, line := range lines {
 		if idx < 3 {
-			ruckSack = append(ruckSack, set.Set{set.StrToMap(line)})
+			ruckSack = append(ruckSack, set.ToSet(line))
 			idx += 1
 		} else {
 			ruckSacks = append(ruckSacks, ruckSack)
 			idx = 1
 			ruckSack = nil
-			ruckSack = append(ruckSack, set.Set{set.StrToMap(line)})
+			ruckSack = append(ruckSack, set.ToSet(line))
 		}
 	}
 	// append last group
