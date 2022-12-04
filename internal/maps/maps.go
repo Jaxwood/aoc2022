@@ -17,6 +17,17 @@ func Union(maps []map[rune]bool) []rune {
 	return keys(first)
 }
 
+func Difference(first map[int]bool, second map[int]bool) map[int]bool {
+	diff := map[int]bool{}
+	for k, _ := range first {
+		_, ok := second[k]
+		if !ok {
+			diff[k] = true
+		}
+	}
+	return diff
+}
+
 func keys(candidate map[rune]bool) []rune {
 	var result []rune
 	for k, _ := range candidate {
