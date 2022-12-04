@@ -4,17 +4,17 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/jaxwood/aoc2022/internal/maps"
+	"github.com/jaxwood/aoc2022/internal/set"
 )
 
-func parse(lines []string) [][]maps.Set {
-	assignments := [][]maps.Set{}
+func parse(lines []string) [][]set.Set {
+	assignments := [][]set.Set{}
 	for _, line := range lines {
 		if line == "" {
 			continue
 		}
 		sections := strings.Split(line, ",")
-		assignment := []maps.Set{}
+		assignment := []set.Set{}
 		for _, section := range sections {
 			items := map[rune]bool{}
 			ranges := strings.Split(section, "-")
@@ -24,7 +24,7 @@ func parse(lines []string) [][]maps.Set {
 			for i := start; i <= end; i++ {
 				items[rune(i)] = true
 			}
-			assignment = append(assignment, maps.Set{items})
+			assignment = append(assignment, set.Set{items})
 		}
 		assignments = append(assignments, assignment)
 	}

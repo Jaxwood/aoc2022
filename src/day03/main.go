@@ -3,7 +3,7 @@ package main
 import (
 	"strings"
 
-	"github.com/jaxwood/aoc2022/internal/maps"
+	"github.com/jaxwood/aoc2022/internal/set"
 )
 
 const (
@@ -35,7 +35,7 @@ func day03a(filename string) int {
 	for _, line := range lines {
 		start := line[:len(line)/2]
 		end := line[len(line)/2:]
-		startChars := maps.StrToMap(start)
+		startChars := set.StrToMap(start)
 		for _, c := range end {
 			_, ok := startChars[c]
 			if ok {
@@ -47,20 +47,20 @@ func day03a(filename string) int {
 	return sum
 }
 
-func ruckSackGroups(lines []string) [][]maps.Set {
+func ruckSackGroups(lines []string) [][]set.Set {
 	idx := 0
-	ruckSack := []maps.Set{}
-	ruckSacks := [][]maps.Set{}
+	ruckSack := []set.Set{}
+	ruckSacks := [][]set.Set{}
 
 	for _, line := range lines {
 		if idx < 3 {
-			ruckSack = append(ruckSack, maps.Set{maps.StrToMap(line)})
+			ruckSack = append(ruckSack, set.Set{set.StrToMap(line)})
 			idx += 1
 		} else {
 			ruckSacks = append(ruckSacks, ruckSack)
 			idx = 1
 			ruckSack = nil
-			ruckSack = append(ruckSack, maps.Set{maps.StrToMap(line)})
+			ruckSack = append(ruckSack, set.Set{set.StrToMap(line)})
 		}
 	}
 	// append last group
