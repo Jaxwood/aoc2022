@@ -8,13 +8,13 @@ func StrToMap(str string) map[rune]bool {
 	return result
 }
 
-func Union(maps []map[rune]bool) []rune {
+func Intersect(maps []map[rune]bool) map[rune]bool {
 	first := maps[0]
 	rest := maps[1:]
 	for _, m := range rest {
-		first = union([]map[rune]bool{first, m})
+		first = intersect([]map[rune]bool{first, m})
 	}
-	return keys(first)
+	return first
 }
 
 func Difference(first map[int]bool, second map[int]bool) map[int]bool {
@@ -36,7 +36,7 @@ func keys(candidate map[rune]bool) []rune {
 	return result
 }
 
-func union(maps []map[rune]bool) map[rune]bool {
+func intersect(maps []map[rune]bool) map[rune]bool {
 	first := maps[0]
 	second := maps[1]
 	same := []rune{}

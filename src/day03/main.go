@@ -77,9 +77,9 @@ func day03b(filename string) int {
 	ruckSacks := ruckSackGroups(lines)
 
 	for _, group := range ruckSacks {
-		badges := maps.Union(group)
-		for _, c := range badges {
-			sum += scores[c]
+		badges := maps.Intersect(group)
+		for k, _ := range badges {
+			sum += scores[k]
 		}
 	}
 
