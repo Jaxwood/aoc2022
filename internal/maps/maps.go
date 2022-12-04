@@ -12,6 +12,10 @@ func StrToMap(str string) map[rune]bool {
 	return result
 }
 
+func (s Set) Len() int {
+	return len(s.Items)
+}
+
 func (s Set) Intersect(other Set) Set {
 	same := map[rune]bool{}
 
@@ -26,15 +30,15 @@ func (s Set) Intersect(other Set) Set {
 	return Set{same}
 }
 
-func Difference(first map[int]bool, second map[int]bool) map[int]bool {
-	diff := map[int]bool{}
-	for k, _ := range first {
-		_, ok := second[k]
+func (s Set) Difference(other Set) Set {
+	diff := map[rune]bool{}
+	for k, _ := range s.Items {
+		_, ok := other.Items[k]
 		if !ok {
 			diff[k] = true
 		}
 	}
-	return diff
+	return Set{diff}
 }
 
 func keys(candidate map[rune]bool) []rune {

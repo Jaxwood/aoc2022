@@ -7,23 +7,24 @@ import (
 	"github.com/jaxwood/aoc2022/internal/maps"
 )
 
-func parse(lines []string) [][]map[int]bool {
-	assignments := [][]map[int]bool{}
+func parse(lines []string) [][]maps.Set {
+	assignments := [][]maps.Set{}
 	for _, line := range lines {
 		if line == "" {
 			continue
 		}
 		sections := strings.Split(line, ",")
-		assignment := []map[int]bool{}
+		assignment := []maps.Set{}
 		for _, section := range sections {
-			set := map[int]bool{}
+			items := map[rune]bool{}
 			ranges := strings.Split(section, "-")
 			start, _ := strconv.Atoi(ranges[0])
 			end, _ := strconv.Atoi(ranges[1])
+
 			for i := start; i <= end; i++ {
-				set[i] = true
+				items[rune(i)] = true
 			}
-			assignment = append(assignment, set)
+			assignment = append(assignment, maps.Set{items})
 		}
 		assignments = append(assignments, assignment)
 	}
@@ -36,9 +37,9 @@ func day04a(filename string) int {
 	assignments := parse(lines)
 	total := 0
 	for _, assignment := range assignments {
-		diff := maps.Difference(assignment[0], assignment[1])
-		diff2 := maps.Difference(assignment[1], assignment[0])
-		if len(diff) == 0 || len(diff2) == 0 {
+		diff := assignment[0].Difference(assignment[1])
+		diff2 := assignment[1].Difference(assignment[0])
+		if diff.Len() == 0 || diff2.Len() == 0 {
 			total += 1
 		}
 	}
@@ -51,9 +52,9 @@ func day04b(filename string) int {
 	assignments := parse(lines)
 	total := 0
 	for _, assignment := range assignments {
-		diff := maps.Difference(assignment[0], assignment[1])
-		diff2 := maps.Difference(assignment[1], assignment[0])
-		if len(diff) != len(assignment[0]) || len(diff2) != len(assignment[1]) {
+		diff := assignment[0].Difference(assignment[1])
+		diff2 := assignment[1].Difference(assignment[0])
+		if diff.Len() != assignment[0].Len() || diff2.Len() != assignment[1].Len() {
 			total += 1
 		}
 	}
