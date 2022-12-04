@@ -47,20 +47,20 @@ func day03a(filename string) int {
 	return sum
 }
 
-func ruckSackGroups(lines []string) [][]map[rune]bool {
+func ruckSackGroups(lines []string) [][]maps.Set {
 	idx := 0
-	ruckSack := []map[rune]bool{}
-	ruckSacks := [][]map[rune]bool{}
+	ruckSack := []maps.Set{}
+	ruckSacks := [][]maps.Set{}
 
 	for _, line := range lines {
 		if idx < 3 {
-			ruckSack = append(ruckSack, maps.StrToMap(line))
+			ruckSack = append(ruckSack, maps.Set{maps.StrToMap(line)})
 			idx += 1
 		} else {
 			ruckSacks = append(ruckSacks, ruckSack)
 			idx = 1
 			ruckSack = nil
-			ruckSack = append(ruckSack, maps.StrToMap(line))
+			ruckSack = append(ruckSack, maps.Set{maps.StrToMap(line)})
 		}
 	}
 	// append last group
@@ -77,8 +77,12 @@ func day03b(filename string) int {
 	ruckSacks := ruckSackGroups(lines)
 
 	for _, group := range ruckSacks {
-		badges := maps.Intersect(group)
-		for k, _ := range badges {
+		first := group[0]
+		rest := group[1:]
+		for _, ruckSack := range rest {
+			first = first.Intersect(ruckSack)
+		}
+		for k, _ := range first.Items {
 			sum += scores[k]
 		}
 	}

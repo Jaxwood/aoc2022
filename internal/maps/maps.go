@@ -1,5 +1,9 @@
 package maps
 
+type Set struct {
+	Items map[rune]bool
+}
+
 func StrToMap(str string) map[rune]bool {
 	result := map[rune]bool{}
 	for _, s := range str {
@@ -8,13 +12,18 @@ func StrToMap(str string) map[rune]bool {
 	return result
 }
 
-func Intersect(maps []map[rune]bool) map[rune]bool {
-	first := maps[0]
-	rest := maps[1:]
-	for _, m := range rest {
-		first = intersect([]map[rune]bool{first, m})
+func (s Set) Intersect(other Set) Set {
+	same := map[rune]bool{}
+
+	for k, _ := range s.Items {
+		for kv, _ := range other.Items {
+			if k == kv {
+				same[k] = true
+			}
+		}
 	}
-	return first
+
+	return Set{same}
 }
 
 func Difference(first map[int]bool, second map[int]bool) map[int]bool {
@@ -34,20 +43,4 @@ func keys(candidate map[rune]bool) []rune {
 		result = append(result, k)
 	}
 	return result
-}
-
-func intersect(maps []map[rune]bool) map[rune]bool {
-	first := maps[0]
-	second := maps[1]
-	same := []rune{}
-
-	for k, _ := range first {
-		for kv, _ := range second {
-			if k == kv {
-				same = append(same, k)
-			}
-		}
-	}
-
-	return StrToMap(string(same))
 }
