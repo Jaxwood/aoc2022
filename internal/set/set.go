@@ -1,4 +1,4 @@
-package maps
+package set
 
 type Set struct {
 	Items map[rune]bool
