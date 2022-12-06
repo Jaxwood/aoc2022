@@ -46,6 +46,22 @@ func (c Cargo) Move(move Move) {
 	}
 }
 
+func (c Cargo) MoveBlock(move Move) {
+	block := []rune{}
+	for i := 0; i < move.Count; i++ {
+		slice := c.Items[move.From]
+		if len(slice) > 0 {
+			item := slice[len(slice)-1]
+			block = append(block, item)
+			slice = slice[:len(slice)-1]
+			c.Items[move.From] = slice
+		}
+	}
+	for i := len(block) - 1; i >= 0; i-- {
+		c.Items[move.To] = append(c.Items[move.To], block[i])
+	}
+}
+
 func parse(filename string) []Move {
 	lines := strings.Split(filename, "\n")
 	moves := []Move{}
@@ -65,6 +81,14 @@ func day05a(filename string, cargo Cargo) string {
 	moves := parse(filename)
 	for _, move := range moves {
 		cargo.Move(move)
+	}
+	return cargo.String()
+}
+
+func day05b(filename string, cargo Cargo) string {
+	moves := parse(filename)
+	for _, move := range moves {
+		cargo.MoveBlock(move)
 	}
 	return cargo.String()
 }
