@@ -1,39 +1,14 @@
 package main
 
-func day06a(file string) int {
-	for i := 3; i < len(file); i++ {
+func day06(file string, size int) int {
+	for i := size - 1; i < len(file); i++ {
 		m := map[string]bool{}
-		m[string(file[i])] = true
-		m[string(file[i-1])] = true
-		m[string(file[i-2])] = true
-		m[string(file[i-3])] = true
-
-		if len(m) == 4 {
-			return i + 1
+		start := -1*size + 1
+		for j := 0; j >= start; j-- {
+			m[string(file[j+i])] = true
 		}
-	}
-	return 0
-}
 
-func day06b(file string) int {
-	for i := 13; i < len(file); i++ {
-		m := map[string]bool{}
-		m[string(file[i])] = true
-		m[string(file[i-1])] = true
-		m[string(file[i-2])] = true
-		m[string(file[i-3])] = true
-		m[string(file[i-4])] = true
-		m[string(file[i-5])] = true
-		m[string(file[i-6])] = true
-		m[string(file[i-7])] = true
-		m[string(file[i-8])] = true
-		m[string(file[i-9])] = true
-		m[string(file[i-10])] = true
-		m[string(file[i-11])] = true
-		m[string(file[i-12])] = true
-		m[string(file[i-13])] = true
-
-		if len(m) == 14 {
+		if len(m) == size {
 			return i + 1
 		}
 	}
