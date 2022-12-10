@@ -167,3 +167,33 @@ func day09(file string) int {
 	}
 	return len(grid.Visited)
 }
+
+func day09b(file string) int {
+	moves := parse(file)
+	grids := map[int]Grid{}
+	for i := 0; i < 10; i++ {
+		grid := Grid{
+			map[Coord]bool{
+				Coord{0, 0}: true,
+			},
+			Coord{0, 0},
+			Coord{0, 0},
+		}
+		grids[i] = grid
+	}
+	for _, move := range moves {
+		grid := grids[0]
+		grid = move.Update(grid)
+		grid = grid.Move()
+		grids[0] = grid
+		last := grid.Head
+		for i := 1; i < 10; i++ {
+			grid := grids[i]
+			grid.Head = last
+			grid = grid.Move()
+			grids[i] = grid
+			last = grid.Tail
+		}
+	}
+	return len(grids[9].Visited)
+}
