@@ -23,25 +23,21 @@ type MoveDown struct {
 
 func (r MoveRight) Update(g Grid) Grid {
 	g.Head.X += 1
-	g = g.Move()
 	return g
 }
 
 func (r MoveLeft) Update(g Grid) Grid {
 	g.Head.X -= 1
-	g = g.Move()
 	return g
 }
 
 func (r MoveUp) Update(g Grid) Grid {
 	g.Head.Y += 1
-	g = g.Move()
 	return g
 }
 
 func (r MoveDown) Update(g Grid) Grid {
 	g.Head.Y -= 1
-	g = g.Move()
 	return g
 }
 
@@ -56,17 +52,6 @@ type Grid struct {
 	Tail    Coord
 }
 
-func (g Grid) AdjecentToCoord(coord Coord) []Coord {
-	result := []Coord{}
-	for i := -1; i <= 1; i++ {
-		for j := -1; j <= 1; j++ {
-			candidate := Coord{coord.X + i, coord.Y + j}
-			result = append(result, candidate)
-		}
-	}
-	return result
-}
-
 func (g Grid) SameColumn() bool {
 	return g.Head.Y == g.Tail.Y
 }
@@ -75,16 +60,22 @@ func (g Grid) SameRow() bool {
 	return g.Head.X == g.Tail.X
 }
 
-func (g Grid) AdjecentOrOnTop() bool {
-	// if tail is ontop of head - don't move it
-	if g.Head == g.Tail {
-		return true
-	}
+func (g Grid) Diagonal() bool {
+	return !g.SameColumn() && !g.SameRow()
+}
+
+func (g Grid) OnTop() bool {
+	return g.Head == g.Tail
+}
+
+func (g Grid) Adjecent() bool {
 	// check neighbours
-	adjecent := g.AdjecentToCoord(g.Tail)
-	for _, coord := range adjecent {
-		if coord == g.Head {
-			return true
+	for i := -1; i <= 1; i++ {
+		for j := -1; j <= 1; j++ {
+			candidate := Coord{g.Tail.X + i, g.Tail.Y + j}
+			if candidate == g.Head {
+				return true
+			}
 		}
 	}
 
@@ -93,11 +84,11 @@ func (g Grid) AdjecentOrOnTop() bool {
 
 func (g Grid) Move() Grid {
 	// if tail is next to or on top of head - don't move it
-	if g.AdjecentOrOnTop() {
+	if g.OnTop() || g.Adjecent() {
 		return g
 	}
 	// move diagonal
-	if !g.SameColumn() && !g.SameRow() {
+	if g.Diagonal() {
 		if g.Head.X > g.Tail.X && g.Head.Y > g.Tail.Y {
 			g.Tail.X += 1
 			g.Tail.Y += 1
@@ -114,22 +105,22 @@ func (g Grid) Move() Grid {
 		g.Visited[g.Tail] = true
 		return g
 	}
-	// move up/down
-	if !g.SameColumn() {
-		if g.Head.Y > g.Tail.Y {
-			g.Tail.Y += 1
-		} else {
-			g.Tail.Y -= 1
-		}
-		g.Visited[g.Tail] = true
-		return g
-	}
 	// move left/right
-	if !g.SameRow() {
+	if g.SameColumn() {
 		if g.Head.X > g.Tail.X {
 			g.Tail.X += 1
 		} else {
 			g.Tail.X -= 1
+		}
+		g.Visited[g.Tail] = true
+		return g
+	}
+	// move up/down
+	if g.SameRow() {
+		if g.Head.Y > g.Tail.Y {
+			g.Tail.Y += 1
+		} else {
+			g.Tail.Y -= 1
 		}
 		g.Visited[g.Tail] = true
 		return g
@@ -172,6 +163,7 @@ func day09(file string) int {
 	}
 	for _, move := range moves {
 		grid = move.Update(grid)
+		grid = grid.Move()
 	}
 	return len(grid.Visited)
 }
