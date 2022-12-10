@@ -182,11 +182,13 @@ func day09b(file string) int {
 		grids[i] = grid
 	}
 	for _, move := range moves {
+		// move head of rope
 		grid := grids[0]
 		grid = move.Update(grid)
 		grid = grid.Move()
 		grids[0] = grid
 		last := grid.Head
+		// move all knots
 		for i := 1; i < 10; i++ {
 			grid := grids[i]
 			grid.Head = last
