@@ -10,54 +10,38 @@ type Move interface {
 }
 
 type MoveRight struct {
-	Amount int
 }
 
 type MoveLeft struct {
-	Amount int
 }
 
 type MoveUp struct {
-	Amount int
 }
 
 type MoveDown struct {
-	Amount int
 }
 
 func (r MoveRight) Update(g Grid) Grid {
-	head := g.Head
-	for i := 0; i < r.Amount; i++ {
-		head.X += 1
-		g = g.Move(head)
-	}
+	g.Head.X += 1
+	g = g.Move()
 	return g
 }
 
 func (r MoveLeft) Update(g Grid) Grid {
-	head := g.Head
-	for i := 0; i < r.Amount; i++ {
-		head.X -= 1
-		g = g.Move(head)
-	}
+	g.Head.X -= 1
+	g = g.Move()
 	return g
 }
 
 func (r MoveUp) Update(g Grid) Grid {
-	head := g.Head
-	for i := 0; i < r.Amount; i++ {
-		head.Y += 1
-		g = g.Move(head)
-	}
+	g.Head.Y += 1
+	g = g.Move()
 	return g
 }
 
 func (r MoveDown) Update(g Grid) Grid {
-	head := g.Head
-	for i := 0; i < r.Amount; i++ {
-		head.Y -= 1
-		g = g.Move(head)
-	}
+	g.Head.Y -= 1
+	g = g.Move()
 	return g
 }
 
@@ -107,8 +91,7 @@ func (g Grid) AdjecentOrOnTop() bool {
 	return false
 }
 
-func (g Grid) Move(head Coord) Grid {
-	g.Head = head
+func (g Grid) Move() Grid {
 	// if tail is next to or on top of head - don't move it
 	if g.AdjecentOrOnTop() {
 		return g
@@ -161,17 +144,18 @@ func parse(file string) []Move {
 		segments := strings.Split(line, " ")
 		if len(segments) == 2 {
 			amount, _ := strconv.Atoi(segments[1])
-			switch segments[0] {
-			case "R":
-				result = append(result, MoveRight{amount})
-			case "L":
-				result = append(result, MoveLeft{amount})
-			case "U":
-				result = append(result, MoveUp{amount})
-			case "D":
-				result = append(result, MoveDown{amount})
+			for i := 0; i < amount; i++ {
+				switch segments[0] {
+				case "R":
+					result = append(result, MoveRight{})
+				case "L":
+					result = append(result, MoveLeft{})
+				case "U":
+					result = append(result, MoveUp{})
+				case "D":
+					result = append(result, MoveDown{})
+				}
 			}
-
 		}
 	}
 	return result
