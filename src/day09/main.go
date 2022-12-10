@@ -1,9 +1,8 @@
 package main
 
 import (
-	"fmt"
-	"strings"
 	"strconv"
+	"strings"
 )
 
 type Move interface {
@@ -69,15 +68,89 @@ type Coord struct {
 
 type Grid struct {
 	Visited map[Coord]bool
-	Head Coord
-	Tail Coord
+	Head    Coord
+	Tail    Coord
+}
+
+func (g Grid) AdjecentToCoord(coord Coord) []Coord {
+	result := []Coord{}
+	for i := -1; i <= 1; i++ {
+		for j := -1; j <= 1; j++ {
+			candidate := Coord{coord.X + i, coord.Y + j}
+			result = append(result, candidate)
+		}
+	}
+	return result
+}
+
+func (g Grid) SameColumn() bool {
+	return g.Head.Y == g.Tail.Y
+}
+
+func (g Grid) SameRow() bool {
+	return g.Head.X == g.Tail.X
+}
+
+func (g Grid) AdjecentOrOnTop() bool {
+	// if tail is ontop of head - don't move it
+	if g.Head == g.Tail {
+		return true
+	}
+	// check neighbours
+	adjecent := g.AdjecentToCoord(g.Tail)
+	for _, coord := range adjecent {
+		if coord == g.Head {
+			return true
+		}
+	}
+
+	return false
 }
 
 func (g Grid) Move(head Coord) Grid {
 	g.Head = head
-	xDiff := g.Head.X - g.Tail.X
-	yDiff := g.Head.Y - g.Tail.Y
-
+	// if tail is next to or on top of head - don't move it
+	if g.AdjecentOrOnTop() {
+		return g
+	}
+	// move diagonal
+	if !g.SameColumn() && !g.SameRow() {
+		if g.Head.X > g.Tail.X && g.Head.Y > g.Tail.Y {
+			g.Tail.X += 1
+			g.Tail.Y += 1
+		} else if g.Head.X > g.Tail.X && g.Head.Y < g.Tail.Y {
+			g.Tail.X += 1
+			g.Tail.Y -= 1
+		} else if g.Head.X < g.Tail.X && g.Head.Y > g.Tail.Y {
+			g.Tail.X -= 1
+			g.Tail.Y += 1
+		} else if g.Head.X < g.Tail.X && g.Head.Y < g.Tail.Y {
+			g.Tail.X -= 1
+			g.Tail.Y -= 1
+		}
+		g.Visited[g.Tail] = true
+		return g
+	}
+	// move up/down
+	if !g.SameColumn() {
+		if g.Head.Y > g.Tail.Y {
+			g.Tail.Y += 1
+		} else {
+			g.Tail.Y -= 1
+		}
+		g.Visited[g.Tail] = true
+		return g
+	}
+	// move left/right
+	if !g.SameRow() {
+		if g.Head.X > g.Tail.X {
+			g.Tail.X += 1
+		} else {
+			g.Tail.X -= 1
+		}
+		g.Visited[g.Tail] = true
+		return g
+	}
 	return g
 }
 
@@ -89,13 +162,13 @@ func parse(file string) []Move {
 		if len(segments) == 2 {
 			amount, _ := strconv.Atoi(segments[1])
 			switch segments[0] {
-				case "R":
+			case "R":
 				result = append(result, MoveRight{amount})
-				case "L":
+			case "L":
 				result = append(result, MoveLeft{amount})
-				case "U":
+			case "U":
 				result = append(result, MoveUp{amount})
-				case "D":
+			case "D":
 				result = append(result, MoveDown{amount})
 			}
 
@@ -108,14 +181,13 @@ func day09(file string) int {
 	moves := parse(file)
 	grid := Grid{
 		map[Coord]bool{
-			Coord{0,0}: true,
+			Coord{0, 0}: true,
 		},
-		Coord{0,0},
-		Coord{0,0},
+		Coord{0, 0},
+		Coord{0, 0},
 	}
 	for _, move := range moves {
 		grid = move.Update(grid)
 	}
-	fmt.Println(grid.Head)
 	return len(grid.Visited)
 }
