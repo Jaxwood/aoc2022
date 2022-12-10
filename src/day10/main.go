@@ -5,6 +5,11 @@ import (
 	"strings"
 )
 
+type CRT struct {
+	position int
+	Pixels   string
+}
+
 type Register = int
 
 type Instruction interface {
@@ -66,6 +71,29 @@ func parse(file string) []Instruction {
 	return result
 }
 
+func (c CRT) IsInRange(position int) bool {
+	for i := -1; i <= 1; i++ {
+		if i+position == c.position {
+			return true
+		}
+	}
+	return false
+}
+
+func (c CRT) Draw(position int) CRT {
+	if c.IsInRange(position) {
+		c.Pixels += "#"
+	} else {
+		c.Pixels += "."
+	}
+	if c.position == 39 {
+		c.position = 0
+	} else {
+		c.position += 1
+	}
+	return c
+}
+
 func day10(file string) int {
 	instructions := parse(file)
 	next := instructions[0]
@@ -94,4 +122,23 @@ func day10(file string) int {
 	}
 
 	return total
+}
+
+func day10b(file string) string {
+	crt := CRT{0, ""}
+	instructions := parse(file)
+	next := instructions[0]
+	instructions = instructions[1:]
+	next = next.Start(1)
+	result := 1
+	for cycle := 1; cycle <= 240; cycle++ {
+		if next.Complete(cycle) {
+			result = next.Result(result)
+			next = instructions[0]
+			instructions = instructions[1:]
+			next = next.Start(cycle)
+		}
+		crt = crt.Draw(result)
+	}
+	return crt.Pixels
 }
