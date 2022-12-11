@@ -1,6 +1,7 @@
 package main
 
 import (
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -94,4 +95,21 @@ func day07(file string) int {
 		}
 	}
 	return total
+}
+
+func day07b(file string) int {
+	dir := parse(file)
+	free := 70000000 - dir.Size()
+	missing := 30000000 - free
+	dirSizes := sizes([]*Dir{&dir}, []int{})
+	candidates := []int{}
+	for _, size := range dirSizes {
+		if size > missing {
+			candidates = append(candidates, size)
+		}
+	}
+
+	sort.Ints(candidates)
+
+	return candidates[0]
 }
