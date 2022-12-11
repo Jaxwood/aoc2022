@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"strconv"
 	"strings"
 )
@@ -29,42 +28,40 @@ func (dir *Dir) Size() int {
 	return total
 }
 
+func (d *Dir) Key() string {
+	if d.Parent == nil {
+		return d.Name
+	}
+	return d.Parent.Key() + d.Name + "/"
+}
+
 func parse(file string) Dir {
 	lines := strings.Split(file, "\n")
 	pointers := map[string]*Dir{}
 	current := "/"
 	pointers[current] = &Dir{"/", []*Dir{}, []*File{}, nil}
-	cd := 0
-	dir := 0
-	ls := 0
-	files := 0
 	for _, line := range lines {
 		if line == "" {
 			continue
 		} else if strings.HasPrefix(line, "$ ls") {
-			ls += 1
 			continue
 		} else if strings.HasPrefix(line, "$ cd ..") {
-			cd += 1
 			if p, ok := pointers[current]; ok {
-				current = p.Parent.Name
+				current = p.Parent.Key()
 			}
 		} else if strings.HasPrefix(line, "$ cd") {
-			cd += 1
 			segments := strings.Split(line, " ")
-			if p, ok := pointers[segments[2]]; ok {
-				current = p.Name
+			if p, ok := pointers[current + segments[2] + "/"]; ok {
+				current = p.Key()
 			}
 		} else if strings.HasPrefix(line, "dir") {
-			dir += 1
 			segments := strings.Split(line, " ")
 			if p, ok := pointers[current]; ok {
 				child := Dir{segments[1], []*Dir{}, []*File{}, p}
-				pointers[child.Name] = &child
+				pointers[child.Key()] = &child
 				p.Dirs = append(p.Dirs, &child)
 			}
 		} else {
-			files += 1
 			segments := strings.Split(line, " ")
 			num, _ := strconv.Atoi(segments[0])
 			if p, ok := pointers[current]; ok {
@@ -73,7 +70,6 @@ func parse(file string) Dir {
 			}
 		}
 	}
-	fmt.Println(cd, dir, ls, files)
 	return *pointers["/"]
 }
 
