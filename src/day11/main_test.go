@@ -13,15 +13,15 @@ var file string
 
 func TestDay11a(t *testing.T) {
 	actual := day11a(input)
-	expected := 0
+	expected := 10605
 	if actual != expected {
 		t.Fatalf(`actual = %v, expected = %v`, actual, expected)
 	}
 }
 
-func _TestDay11b(t *testing.T) {
+func TestDay11b(t *testing.T) {
 	actual := day11a(file)
-	expected := 0
+	expected := 182293
 	if actual != expected {
 		t.Fatalf(`actual = %v, expected = %v`, actual, expected)
 	}

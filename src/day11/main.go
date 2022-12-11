@@ -1,32 +1,39 @@
 package main
 
 import (
-	"strings"
+	"sort"
 	"strconv"
+	"strings"
 )
 
 type Operation int
 
 const (
-	Divide Operation = 0
-	Multiply = 1
-	Add = 2
+	Divide   Operation = 0
+	Multiply           = 1
+	Add                = 2
 )
 
 type Monkey struct {
-	Num int
-	Levels []int
+	Num       int
+	Levels    []int
 	Operation Operation
-	Operand int
-	Test int
-	Truecase int
+	Operand   int
+	Test      int
+	Truecase  int
 	Falsecase int
+	Inspect   int
 }
+
+type ByInspect []Monkey
+
+func (a ByInspect) Len() int           { return len(a) }
+func (a ByInspect) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (a ByInspect) Less(i, j int) bool { return a[i].Inspect < a[j].Inspect }
 
 func parse(file string) map[int]Monkey {
 	result := map[int]Monkey{}
 	lines := strings.Split(file, "\n")
-	// levels := regexp.MustCompile("Starting items: (\\d+)")
 	var monkey Monkey
 	for _, line := range lines {
 		if line == "" {
@@ -81,12 +88,14 @@ func parse(file string) map[int]Monkey {
 func day11a(file string) int {
 	monkeys := parse(file)
 	for round := 0; round < 20; round++ {
-		for _, monkey := range monkeys {
+		for i := 0; i < len(monkeys); i++ {
+			monkey := monkeys[i]
+			monkey.Inspect += len(monkey.Levels)
 			queue := monkey.Levels
 			for len(queue) > 0 {
 				next := queue[0]
 				queue = queue[1:]
-				// calculate new value
+				// inspect
 				switch monkey.Operation {
 				case 1:
 					if monkey.Operand == 0 {
@@ -101,8 +110,10 @@ func day11a(file string) int {
 						next += monkey.Operand
 					}
 				}
-				// throw to other monkey
-				if next % monkey.Test == 0 {
+				// bored
+				next /= 3
+				// throw
+				if next%monkey.Test == 0 {
 					m := monkeys[monkey.Truecase]
 					m.Levels = append(m.Levels, next)
 					monkeys[monkey.Truecase] = m
@@ -112,7 +123,14 @@ func day11a(file string) int {
 					monkeys[monkey.Falsecase] = m
 				}
 			}
+			monkey.Levels = []int{}
+			monkeys[i] = monkey
 		}
 	}
-	return 0
+	result := []Monkey{}
+	for _, v := range monkeys {
+		result = append(result, v)
+	}
+	sort.Sort(ByInspect(result))
+	return result[len(result)-1].Inspect * result[len(result)-2].Inspect
 }
