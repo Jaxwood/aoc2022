@@ -1,6 +1,7 @@
 package main
 
 import (
+	"math/big"
 	"sort"
 	"strconv"
 	"strings"
@@ -16,13 +17,13 @@ const (
 
 type Monkey struct {
 	Num       int
-	Levels    []int
+	Levels    []*big.Int
 	Operation Operation
 	Operand   int
 	Test      int
 	Truecase  int
 	Falsecase int
-	Inspect   int
+	Inspect   int64
 }
 
 type ByInspect []Monkey
@@ -50,7 +51,7 @@ func parse(file string) map[int]Monkey {
 			levels := strings.Split(line, " ")[4:]
 			for _, level := range levels {
 				l, _ := strconv.Atoi(strings.TrimSuffix(level, ","))
-				monkey.Levels = append(monkey.Levels, l)
+				monkey.Levels = append(monkey.Levels, big.NewInt(int64(l)))
 			}
 		}
 		if strings.Contains(line, "Operation") {
@@ -85,12 +86,12 @@ func parse(file string) map[int]Monkey {
 	return result
 }
 
-func day11a(file string) int {
+func day11a(file string, rounds int) int64 {
 	monkeys := parse(file)
-	for round := 0; round < 20; round++ {
+	for round := 0; round < rounds; round++ {
 		for i := 0; i < len(monkeys); i++ {
 			monkey := monkeys[i]
-			monkey.Inspect += len(monkey.Levels)
+			monkey.Inspect += int64(len(monkey.Levels))
 			queue := monkey.Levels
 			for len(queue) > 0 {
 				next := queue[0]
@@ -99,21 +100,23 @@ func day11a(file string) int {
 				switch monkey.Operation {
 				case 1:
 					if monkey.Operand == 0 {
-						next *= next
+						next = big.NewInt(0).Mul(next, next)
 					} else {
-						next *= monkey.Operand
+						next = big.NewInt(0).Mul(next, big.NewInt(int64(monkey.Operand)))
 					}
 				case 2:
 					if monkey.Operand == 0 {
-						next += next
+						next = big.NewInt(0).Add(next, next)
 					} else {
-						next += monkey.Operand
+						next = big.NewInt(0).Add(next, big.NewInt(int64(monkey.Operand)))
 					}
 				}
 				// bored
-				next /= 3
+				if rounds == 20 {
+					next = big.NewInt(0).Div(next, big.NewInt(int64(3)))
+				}
 				// throw
-				if next%monkey.Test == 0 {
+				if big.NewInt(0).Mod(next, big.NewInt(int64(monkey.Test))).Cmp(big.NewInt(0)) == 0 {
 					m := monkeys[monkey.Truecase]
 					m.Levels = append(m.Levels, next)
 					monkeys[monkey.Truecase] = m
@@ -123,7 +126,7 @@ func day11a(file string) int {
 					monkeys[monkey.Falsecase] = m
 				}
 			}
-			monkey.Levels = []int{}
+			monkey.Levels = []*big.Int{}
 			monkeys[i] = monkey
 		}
 	}
