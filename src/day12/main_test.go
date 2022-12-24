@@ -26,3 +26,19 @@ func TestDay12b(t *testing.T) {
 		t.Fatalf(`actual = %v, expected = %v`, actual, expected)
 	}
 }
+
+func TestDay12c(t *testing.T) {
+	actual := day12b(input)
+	expected := 29
+	if actual != expected {
+		t.Fatalf(`actual = %v, expected = %v`, actual, expected)
+	}
+}
+
+func TestDay12d(t *testing.T) {
+	actual := day12b(file)
+	expected := 386
+	if actual != expected {
+		t.Fatalf(`actual = %v, expected = %v`, actual, expected)
+	}
+}

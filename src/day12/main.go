@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"math"
 	"strings"
 )
@@ -48,12 +47,7 @@ func valid(heightMap HeightMap, from Coord, to Coord) bool {
 	return heightMap[to] - 1 <= heightMap[from]
 }
 
-func day12(file string) int {
-	heightMap := parse(file)
-	start := findLocation(heightMap, 'S')
-	end := findLocation(heightMap, 'E')
-	heightMap[start] = int('a')
-	heightMap[end] = int('z')
+func distance(heightMap HeightMap, start Coord, end Coord) int {
 	unvisited := map[Coord]int{}
 	for k,_ := range heightMap {
 		unvisited[k] = math.MaxInt32
@@ -78,7 +72,45 @@ func day12(file string) int {
 			}
 		}
 	}
-	fmt.Println(unvisited)
 	return 0
 }
 
+func day12(file string) int {
+	heightMap := parse(file)
+	start := findLocation(heightMap, 'S')
+	end := findLocation(heightMap, 'E')
+	heightMap[start] = int('a')
+	heightMap[end] = int('z')
+
+	return distance(heightMap, start, end)
+}
+
+func day12b(file string) int {
+	heightMap := parse(file)
+	start := findLocation(heightMap, 'S')
+	end := findLocation(heightMap, 'E')
+	heightMap[start] = int('a')
+	heightMap[end] = int('z')
+
+	candidates := []Coord{}
+	for k, v := range heightMap {
+		if v == int('a') {
+			candidates = append(candidates, k)
+		}
+	}
+
+	best := math.MaxInt
+
+	for _, candidate := range candidates {
+		distance := distance(heightMap, candidate, end)
+		// no path to destination
+		if distance == 0 {
+			continue
+		}
+		if distance < best {
+			best = distance
+		}
+	}
+
+	return best
+}
