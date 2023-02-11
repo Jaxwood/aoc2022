@@ -1,7 +1,8 @@
 package main
 
 import (
-	"strconv"
+	"encoding/json"
+	"fmt"
 	"strings"
 )
 
@@ -34,80 +35,61 @@ func parse(file string) []Pair {
 	return result
 }
 
-func compare(left []interface{}, right []interface{}) bool {
+// 0 if left == right
+// -1 if left < right
+// +1 if left > right
+func compare(left interface{}, right interface{}) int {
 	// compare each element
-	for i := 0; i < len(left); i++ {
-		// no more right elements
-		if i == len(right) {
-			return false
-		}
-		leftInt, leftIntOk := left[i].(int)
-		rightInt, rightIntOk := right[i].(int)
-		if leftIntOk && rightIntOk {
-			// equal - check next pair
-			if leftInt == rightInt {
-				continue
+	leftSide, leftSideOk := left.([]interface{})
+	rightSide, rightSideOk := right.([]interface{})
+	if leftSideOk && rightSideOk {
+		for i := 0; i < len(leftSide); i++ {
+			// right ran out of items
+			if len(rightSide) == i {
+				return 1
 			}
-			// compare left and right
-			return leftInt < rightInt
-		} else if leftIntOk {
-			if !compare([]interface{} {leftInt}, right[i].([]interface{})) {
-				return false
-			}
-		} else if rightIntOk {
-			if !compare(left[i].([]interface{}), []interface{} { rightInt }) {
-				return false
-			}
-		} else {
-			if !compare(left[i].([]interface{}), right[i].([]interface{})) {
-				return false
+			if compare(leftSide[i], rightSide[i]) == 1 {
+				return 1
 			}
 		}
+	} else if leftSideOk {
+		rightNum := right.(float64)
+		fmt.Println(rightNum)
+		if compare(left, []interface{}{rightNum}) == 1 {
+			return 1
+		}
+	} else if rightSideOk {
+		leftNum := left.(float64)
+		fmt.Println(leftNum)
+	} else {
+		rightNum := right.(float64)
+		leftNum := left.(float64)
+		fmt.Println("comparing", leftNum, rightNum)
+		if leftNum > rightNum {
+			return +1
+		}
+		if leftNum < rightNum {
+			return -1
+		}
+		return 0
 	}
-	return true
+	return +1
 }
 
-func convert(str string) []interface{} {
-	queue := str
-	var result [][]interface{}
-	for len(queue) > 0 {
-		next := queue[0]
-		queue = queue[1:]
-		switch next {
-			case '[':
-				result = append(result, []interface{}{})
-			case ']':
-				idx := len(result)-1
-				tmp := result[idx]
-				if idx > 0 {
-					result = result[0:idx]
-					result[idx-1] = append(result[idx-1], tmp)
-				}
-			case ',':
-				continue
-			default:
-				num := string(next)
-				for {
-					if _, ok := strconv.Atoi(string(queue[0])); ok == nil {
-						num += string(queue[0])
-						queue = queue[1:]
-					} else {
-						break
-					}
-				}
-				idx := len(result)-1
-				val, _ := strconv.Atoi(string(num))
-				result[idx] = append(result[idx], val)
-		}
+func convert(str string) interface{} {
+	var result interface{}
+	err := json.Unmarshal([]byte(str), &result)
+	if err != nil {
+		panic("could not parse json")
 	}
-	return result[0]
+	return result
 }
 
 func day13(file string) int {
 	pairs := parse(file)
 	sum := 0
 	for idx, pair := range pairs {
-		if compare(convert(pair.Left), convert(pair.Right)) {
+		if compare(pair.Left, pair.Right) == +1 {
 			sum += idx + 1
 		}
 	}
