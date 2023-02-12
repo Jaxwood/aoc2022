@@ -26,20 +26,10 @@ type Reservoir struct {
 	yMax  int
 }
 
-func (r *Reservoir) fill() {
+func (r *Reservoir) draw() {
 	for y := r.yMin; y <= r.yMax; y++ {
-		for x := r.xMin; x <= r.xMax; x++ {
-			if _, ok := r.Rocks[Coord{X: x, Y: y}]; !ok {
-				r.Rocks[Coord{x, y}] = AIR
-			}
-		}
-	}
-}
-
-func (r *Reservoir) draw(from Coord, to Coord) {
-	for y := from.Y; y <= to.Y; y++ {
 		var line string
-		for x := from.X; x <= to.X; x++ {
+		for x := r.xMin; x <= r.xMax; x++ {
 			if val, ok := r.Rocks[Coord{X: x, Y: y}]; ok {
 				line += string(val)
 			} else {
@@ -57,15 +47,9 @@ func until(raw string) Coord {
 	return Coord{X: x, Y: y}
 }
 
-func parse(file string) Reservoir {
+func parse(file string) map[Coord]rune {
 	lines := strings.Split(file, "\n")
-	result := Reservoir{
-		map[Coord]rune{},
-		0,
-		0,
-		0,
-		0,
-	}
+	rocks := map[Coord]rune{}
 	for _, line := range lines {
 		segments := strings.Split(line, " -> ")
 		from := until(segments[0])
@@ -78,24 +62,13 @@ func parse(file string) Reservoir {
 			yMax := math.Max(float64(from.Y), float64(to.Y))
 			for x := xMin; x <= xMax; x++ {
 				for y := yMin; y <= yMax; y++ {
-					result.Rocks[Coord{X: int(x), Y: int(y)}] = ROCK
+					rocks[Coord{X: int(x), Y: int(y)}] = ROCK
 				}
 			}
 			from = to
 		}
 	}
-	result.boundaries()
-	return result
-}
-
-func (r *Reservoir) isResting(coord Coord) bool {
-	_, okLeft := r.Rocks[Coord{coord.X - 1, coord.Y + 1}]
-	_, okRight := r.Rocks[Coord{coord.X + 1, coord.Y + 1}]
-
-	if !okLeft || !okRight {
-		return false
-	}
-	return true
+	return rocks
 }
 
 func (r *Reservoir) drop(start Coord) (bool, Coord) {
@@ -112,34 +85,54 @@ func (r *Reservoir) drop(start Coord) (bool, Coord) {
 	return false, start
 }
 
+func (r *Reservoir) isResting(coord Coord) bool {
+	left := Coord{coord.X - 1, coord.Y + 1}
+	right := Coord{coord.X + 1, coord.Y + 1}
+
+	if r.withIn(left) && r.withIn(right) {
+		return true
+	}
+	return false
+}
+
 func (r *Reservoir) moveDown(coord Coord) (Coord, bool) {
 	next := Coord{coord.X, coord.Y + 1}
-	down, ok := r.Rocks[next]
-	if ok && down == AIR {
-		return next, ok
+	_, ok := r.Rocks[next]
+	if r.withIn(next) && !ok {
+		return next, true
 	}
 	return coord, false
 }
 
 func (r *Reservoir) moveDownLeft(coord Coord) (Coord, bool) {
-	downLeft := Coord{coord.X - 1, coord.Y + 1}
-	leftDownType, downLeftOK := r.Rocks[downLeft]
-	if downLeftOK && leftDownType == AIR {
-		return downLeft, true
+	next := Coord{coord.X - 1, coord.Y + 1}
+	_, ok := r.Rocks[next]
+	if r.withIn(next) && !ok {
+		return next, true
 	}
 	return coord, false
 }
 
 func (r *Reservoir) moveDownRight(coord Coord) (Coord, bool) {
-	downRight := Coord{coord.X + 1, coord.Y + 1}
-	rightDownType, downRightOK := r.Rocks[downRight]
-	if downRightOK && rightDownType == AIR {
-		return downRight, true
+	next := Coord{coord.X + 1, coord.Y + 1}
+	_, ok := r.Rocks[next]
+	if r.withIn(next) && !ok {
+		return next, true
 	}
 	return coord, false
 }
 
-func (r *Reservoir) countSand() int {
+func (r *Reservoir) withIn(coord Coord) bool {
+	if coord.X < r.xMin || coord.X > r.xMax {
+		return false
+	}
+	if coord.Y < r.yMin || coord.Y > r.yMax {
+		return false
+	}
+	return true
+}
+
+func (r *Reservoir) count() int {
 	total := 0
 	for _, y := range r.Rocks {
 		if y == SAND {
@@ -149,36 +142,39 @@ func (r *Reservoir) countSand() int {
 	return total
 }
 
-func (r *Reservoir) boundaries() {
+func boundaries(rocks map[Coord]rune) (Coord, Coord) {
 	xMin, xMax := 500.0, 500.0
 	yMin, yMax := 0.0, 0.0
-	for coord := range r.Rocks {
+	for coord := range rocks {
 		xMin = math.Min(float64(coord.X), xMin)
 		xMax = math.Max(float64(coord.X), xMax)
 		yMin = math.Min(float64(coord.Y), yMin)
 		yMax = math.Max(float64(coord.Y), yMax)
 	}
-	r.xMin = int(xMin)
-	r.xMax = int(xMax)
-	r.yMin = int(yMin)
-	r.yMax = int(yMax)
+	return Coord{int(xMin), int(yMin)}, Coord{int(xMax), int(yMax)}
 }
 
 func day14(file string) int {
-	reservoir := parse(file)
-	reservoir.fill()
+	rocks := parse(file)
+	min, max := boundaries(rocks)
+	reservoir := Reservoir{
+		rocks,
+		min.X,
+		max.X,
+		min.Y,
+		max.Y,
+	}
 
 	for {
 		resting, coord := reservoir.drop(Coord{500, 0})
 		if !resting {
 			break
-		} else {
-			reservoir.Rocks[coord] = SAND
 		}
-		//draw(reservoir, from, to)
+		reservoir.Rocks[coord] = SAND
+		//reservoir.draw()
 	}
 
-	return reservoir.countSand()
+	return reservoir.count()
 }
 
 func day14b(file string) int {
