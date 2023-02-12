@@ -178,5 +178,31 @@ func day14(file string) int {
 }
 
 func day14b(file string) int {
-	return len(file)
+	rocks := parse(file)
+	min, max := boundaries(rocks)
+	// add floor
+	floor := 1000
+	for x := min.X - floor; x <= max.X + floor; x++ {
+		rocks[Coord{x, max.Y + 2}] = ROCK
+	}
+	reservoir := Reservoir{
+		rocks,
+		min.X - floor,
+		max.X + floor,
+		min.Y,
+		max.Y + 2,
+	}
+
+	start := Coord{500, 0}
+	for {
+		_, coord := reservoir.drop(start)
+		if coord ==  start {
+			reservoir.Rocks[coord] = SAND
+			break
+		}
+		reservoir.Rocks[coord] = SAND
+		// reservoir.draw()
+	}
+
+	return reservoir.count() 
 }
