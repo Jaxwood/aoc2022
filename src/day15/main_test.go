@@ -21,7 +21,7 @@ func TestDay15a(t *testing.T) {
 
 func TestDay15b(t *testing.T) {
 	actual := day15(file, 2000000)
-	expected := 26
+	expected := 4717631
 	if actual != expected {
 		t.Fatalf(`actual = %v, expected = %v`, actual, expected)
 	}

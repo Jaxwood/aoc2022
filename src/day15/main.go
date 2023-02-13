@@ -39,13 +39,9 @@ func parse(file string) []Reading {
 // find the coords that are within a certain manhattan distance
 func (r *Reading) within(manhattanDistance float64, line float64) []Coord {
 	var coords []Coord
-	for y := r.Sensor.Y - manhattanDistance; y <= r.Sensor.Y+manhattanDistance; y++ {
-		for x := r.Sensor.X - manhattanDistance; x <= r.Sensor.X+manhattanDistance; x++ {
-			if math.Abs(r.Sensor.X-x)+math.Abs(r.Sensor.Y-y) <= manhattanDistance {
-				if line == y {
-					coords = append(coords, Coord{X: x, Y: y})
-				}
-			}
+	for x := r.Sensor.X - manhattanDistance; x <= r.Sensor.X+manhattanDistance; x++ {
+		if math.Abs(r.Sensor.X-x)+math.Abs(r.Sensor.Y-line) <= manhattanDistance {
+				coords = append(coords, Coord{X: x, Y: line})
 		}
 	}
 	return coords
