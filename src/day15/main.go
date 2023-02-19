@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"math"
 	"regexp"
 	"strconv"
@@ -37,11 +38,24 @@ func parse(file string) []Reading {
 }
 
 // find the coords that are within a certain manhattan distance
-func (r *Reading) within(manhattanDistance float64, line float64) []Coord {
+func (r *Reading) on(manhattanDistance float64, line float64) []Coord {
 	var coords []Coord
 	for x := r.Sensor.X - manhattanDistance; x <= r.Sensor.X+manhattanDistance; x++ {
 		if math.Abs(r.Sensor.X-x)+math.Abs(r.Sensor.Y-line) <= manhattanDistance {
 				coords = append(coords, Coord{X: x, Y: line})
+		}
+	}
+	return coords
+}
+
+// find the coords that are within a certain manhattan distance
+func (r *Reading) within(manhattanDistance float64) []Coord {
+	var coords []Coord
+	for y := r.Sensor.Y - manhattanDistance; y <= r.Sensor.Y+manhattanDistance; y++ {
+		for x := r.Sensor.X - manhattanDistance; x <= r.Sensor.X+manhattanDistance; x++ {
+			if math.Abs(r.Sensor.X-x)+math.Abs(r.Sensor.Y-y) <= manhattanDistance {
+					coords = append(coords, Coord{X: x, Y: y})
+			}
 		}
 	}
 	return coords
@@ -52,11 +66,10 @@ func (r *Reading) manhattan() float64 {
 }
 
 func day15(file string, line float64) int {
-
 	readings := parse(file)
 	result := map[Coord]bool{}
 	for _, reading := range readings {
-		coords := reading.within(reading.manhattan(), line)
+		coords := reading.on(reading.manhattan(), line)
 		for _, coord := range coords {
 			result[coord] = true
 		}
@@ -67,4 +80,50 @@ func day15(file string, line float64) int {
 		}
 	}
 	return len(result)
+}
+
+func (r *Reading) filter(low float64, high float64) bool {
+	if r.Beacon.X < low || r.Beacon.X > high {
+		return false
+	}
+
+	if r.Beacon.Y < low || r.Beacon.Y > high {
+		return false
+	}
+
+	return true
+}
+
+func (c *Coord) signal() float64 {
+	return c.X * 4000000 + c.Y
+}
+
+func day15b(file string, low float64, high float64) int {
+	readings := parse(file)
+	result := map[Coord]bool{}
+	for _, reading := range readings {
+		if reading.filter(low, high) {
+			coords := reading.within(reading.manhattan())
+			for _, coord := range coords {
+				result[coord] = true
+			}
+		}
+	}
+
+	// draw
+	for y := -10.0; y < 25.0; y++ {
+		line := ""
+		for x := -25.0; x < 50.0; x++ {
+			if x == 14 && y == 11 {
+				line += "x"
+			} else if result[Coord{x,y}] {
+				line += "#"
+			} else {
+				line += "."
+			}
+		}
+		fmt.Println(line)
+	}
+
+	return 0
 }
