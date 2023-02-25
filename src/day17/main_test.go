@@ -12,7 +12,7 @@ var input string
 var file string
 
 func TestDay17a(t *testing.T) {
-	actual := day17(input)
+	actual := day17(input, 2022)
 	expected := 3068
 	if actual != expected {
 		t.Fatalf(`actual = %v, expected = %v`, actual, expected)
